@@ -10,7 +10,7 @@
 <table class="table bg-info col-md-6 ">
     <tr>
         <th class="bg-success col-md-4">
-            @*@Html.DisplayNameFor(model => model.CategoryName)*@
+            @Html.DisplayNameFor(model => model.CategoryName)
             Tên Danh Mục
         </th>
         <th class="bg-success col-md-2"></th>
@@ -32,5 +32,7 @@
 
 </table>
 <p>
-        @Html.ActionLink("Thêm Mới", "Create", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Thêm Mới", "Create", null, new { @class = "btn btn-primary" })
 </p>
+
+
