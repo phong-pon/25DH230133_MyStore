@@ -1,0 +1,77 @@
+﻿@model IEnumerable<_25DH230133_MyStore.Models.Product>
+
+@{
+    Layout = null;
+}
+
+
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    
+</head>
+<head>
+    <style>
+        img {
+            max-width: 150px;
+            height: 150px;
+        }
+    </style>
+</head>
+    <h2 class=" text-bg-success ">Danh Sách SẢN Phẩm</h2>
+    
+    <table class="table bg-info container-fluid ">
+        <tr>
+            <th class="bg-success col-md-2">
+                @*@Html.DisplayNameFor(model => model.ProductName)*@
+                Tên Sản Phẩm
+            </th>
+            <th class="bg-success col-md-2">
+                @*@Html.DisplayNameFor(model => model.ProductDescription)*@
+                Hình Ảnh
+            </th>
+            <!--<th class="bg-success">-->
+            @*@Html.DisplayNameFor(model => model.ProductPrice)*@
+            <!--Mô Tả
+            </th>-->
+            <th class="bg-success col-md-2">
+                @*@Html.DisplayNameFor(model => model.ProductImage)*@
+                Đơn Giá
+            </th>
+
+            <th class="bg-success col-md-2">
+                @*@Html.DisplayNameFor(model => model.Category.CategoryName)*@
+                Danh Mục
+            <th class="bg-success col-md-4"></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductPrice)
+                </td>
+                <td>
+                  @Html.DisplayFor(modelItem => item.ProductImage) /> 
+                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.ProductDescription)
+                </td>*@
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                </td>
+                <td>
+                    @Html.ActionLink("Sửa", "Edit", new { id = item.ProductID }, new { @class = "btn btn-primary  btn-sm" }) |
+                    @Html.ActionLink("Xem Chi Tiết", "Details", new { id = item.ProductID }, new { @class = "btn btn-primary  btn-sm" }) |
+                    @Html.ActionLink("Xóa", "Delete", new { id = item.ProductID }, new { @class = "btn btn-primary  btn-sm" })
+                </td>
+            </tr>
+        }
+
+    </table>
+    <p>
+        @Html.ActionLink("Thêm Mới", "Create", null , new { @class = "btn btn-primary" })
+    </p>

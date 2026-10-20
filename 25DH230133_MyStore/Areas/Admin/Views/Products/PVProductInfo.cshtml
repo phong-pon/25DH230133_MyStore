@@ -1,0 +1,70 @@
+﻿@model _25DH230133_MyStore.Models.Product
+
+<head>
+    <style>
+        img {
+            max-width: 250px;
+            height: 250px;
+        }
+    </style>
+    <div class="container-fluid">
+
+        <h2 class="bg-success">Chi Tiết Sản Phẩm</h2>
+        <div class="div-horizontal">
+            <div class="col-md-3">
+                img src="@Html.DisplayFor(model => model.ProductImage)" />
+            </div>
+            <div class="col-md-9">
+                <dl>
+                    <dt>
+                        @*@Html.DisplayNameFor(model => model.ProductName)*@
+                        Tên Sản Phẩm
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.ProductName)
+                    </dd>
+
+                    <dt>
+                        @*@Html.DisplayNameFor(model => model.ProductPrice)*@
+                        Đơn Giá
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.ProductPrice)
+                    </dd>
+
+                    <dt>
+                        @*@Html.DisplayNameFor(model => model.ProductImage)*@
+                        Hình Ảnh
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.ProductImage)
+                    </dd>
+
+                    <dt>
+                        @*@Html.DisplayNameFor(model => model.ProductDescription)*@
+                        Mô Tả
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.ProductDescription)
+                    </dd>
+
+                    <dt>
+                        @*@Html.DisplayNameFor(model => model.Category.CategoryName)*@
+                        Danh Mục
+                    </dt>
+
+                    <dd>
+                        @Html.DisplayFor(model => model.Category.CategoryName)
+                    </dd>
+
+
+
+                </dl>
+            </div>
+           
+    </div>
+</head>

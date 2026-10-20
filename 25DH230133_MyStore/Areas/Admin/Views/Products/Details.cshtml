@@ -1,0 +1,19 @@
+﻿@model _25DH230133_MyStore.Models.Product
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+
+
+<h2 class="bg-success">Chi Tiết Sản Phẩm</h2>
+
+@Html.Partial("PVProductInfo", Model)
+<div class="form-group">
+    <div class="col-md-offset-4 col-md-8">
+        @Html.ActionLink("Sửa", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-primary  " }) |
+        @Html.ActionLink("Quay Lại Danh Sách", "Index", null, new { @class = "btn btn-primary " })
+    </div>
+ </div>
