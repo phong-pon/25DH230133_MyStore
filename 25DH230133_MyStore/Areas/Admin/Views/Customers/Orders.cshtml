@@ -1,0 +1,24 @@
+﻿@model IEnumerable<_25DH230133_MyStore.Models.Order>
+
+@{
+    ViewBag.Title = "Đơn hàng của khách";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var customer = ViewBag.Customer as _25DH230133_MyStore.Models.Customer;
+}
+
+<h2 class="bg-success">ĐƠN HÀNG CỦA @(customer == null ? "" : customer.CustomerName.ToUpper())</h2>
+<table class="table">
+    <tr class="success"><th>Mã đơn</th><th>Ngày đặt</th><th>Số sản phẩm</th><th>Tổng tiền</th><th>Trạng thái</th><th></th></tr>
+    @foreach (var o in Model)
+    {
+        <tr class="info">
+            <td>#@o.OrderID</td>
+            <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
+            <td>@o.OrderDetails.Count</td>
+            <td>@o.TotalAmount.ToString("N0")</td>
+            <td>@o.PaymentStatus</td>
+            <td>@Html.ActionLink("Chi tiết", "Details", "Orders", new { id = o.OrderID }, new { @class = "btn btn-primary btn-xs" })</td>
+        </tr>
+    }
+</table>
+<p>@Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-primary" })</p>

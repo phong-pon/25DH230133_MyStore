@@ -1,0 +1,44 @@
+﻿@model PagedList.IPagedList<_25DH230133_MyStore.Models.Customer>
+@using PagedList.Mvc
+
+@{
+    ViewBag.Title = "Khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string searchTerm = ViewBag.SearchTerm as string;
+    string sortOrder = ViewBag.SortOrder as string;
+}
+
+@using (Html.BeginForm("Index", "Customers", FormMethod.Get, new { @class = "text-center", style = "margin-top:10px;" }))
+{
+    <input type="text" name="searchTerm" value="@searchTerm" class="form-control" style="display:inline-block;width:380px;" placeholder="Nhập tên, email, số điện thoại hoặc tài khoản" />
+    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+}
+<p class="text-center" style="margin-top:15px;">
+    Sắp xếp theo:
+    @Html.ActionLink("Tên tăng dần", "Index", new { searchTerm, sortOrder = "name_asc" })|
+    @Html.ActionLink("Tên giảm dần", "Index", new { searchTerm, sortOrder = "name_desc" })
+</p>
+
+<h2 class="bg-success">DANH SÁCH KHÁCH HÀNG</h2>
+<table class="table">
+    <tr class="success">
+        <th>Họ tên</th><th>Điện thoại</th><th>Email</th><th>Địa chỉ</th><th>Tài khoản</th><th></th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr class="info">
+            <td>@item.CustomerName</td>
+            <td>@item.CustomerPhone</td>
+            <td>@item.CustomerEmail</td>
+            <td>@item.CustomerAddress</td>
+            <td>@item.Username</td>
+            <td>
+                @Html.ActionLink("Chi tiết", "Details", new { id = item.CustomerID }, new { @class = "btn btn-primary btn-xs" })
+                @Html.ActionLink("Đơn hàng", "Orders", new { id = item.CustomerID }, new { @class = "btn btn-primary btn-xs" })
+            </td>
+        </tr>
+    }
+</table>
+<div class="pagination-container">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm, sortOrder }))
+</div>

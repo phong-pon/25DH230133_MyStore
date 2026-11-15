@@ -1,20 +1,43 @@
-﻿/* Set padding to keep content from hitting the edges */
-.body-content {
-    margin-top: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
+﻿/* Chừa chỗ cho thanh menu cố định (dải freeship + navbar) */
+body {
+    padding-top: 95px;
+    padding-bottom: 0;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
-*/
+/* Override the default bootstrap behavior where horizontal description lists
+   will truncate terms that are too long to fit in the left column */
 .dl-horizontal dt {
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+/* Chân trang */
+.site-footer {
+    background-color: lightgrey;
+    padding: 25px 30px;
+    margin-top: 20px;
+    color: #333;
+}
+
+    .site-footer .footer-left {
+        margin-top: 12px;
+    }
+
+    .site-footer .footer-contact {
+        font-size: 20px;
+        margin: 0 0 12px 0;
+    }
+
+    .site-footer p {
+        margin: 0;
+    }
+
+/* Trang quản trị: thanh menu đen cố định, không có dải freeship */
+body.admin-body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+.admin-body .body-content {
+    padding-left: 15px;
+    padding-right: 15px;
 }

@@ -1,0 +1,36 @@
+﻿@model PagedList.IPagedList<_25DH230133_MyStore.Models.Order>
+@using PagedList.Mvc
+
+@{
+    ViewBag.Title = "Đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string searchTerm = Request.QueryString["searchTerm"];
+}
+
+@using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "text-center", style = "margin-top:10px;" }))
+{
+    <input type="text" name="searchTerm" value="@searchTerm" class="form-control" style="display:inline-block;width:380px;" placeholder="Nhập mã đơn hàng hoặc tên khách hàng" />
+    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+}
+
+<h2 class="bg-success">DANH SÁCH ĐƠN HÀNG</h2>
+@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+<table class="table">
+    <tr class="success"><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th></th></tr>
+    @foreach (var o in Model)
+    {
+        <tr class="info">
+            <td>#@o.OrderID</td>
+            <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
+            <td>@o.Customer.CustomerName</td>
+            <td>@o.TotalAmount.ToString("N0")</td>
+            <td>@o.PaymentMethod</td>
+            <td>@o.PaymentStatus</td>
+            <td>@Html.ActionLink("Chi tiết", "Details", new { id = o.OrderID }, new { @class = "btn btn-primary btn-xs" })</td>
+        </tr>
+    }
+</table>
+<div class="pagination-container">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm }))
+</div>

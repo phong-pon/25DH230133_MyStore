@@ -1,0 +1,25 @@
+﻿@model _25DH230133_MyStore.Models.User
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="bg-success">CẬP NHẬT TÀI KHOẢN</h2>
+<hr />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group"><div class="control-label col-md-2">Tên đăng nhập</div><div class="col-md-10"><input type="text" class="form-control" value="@Model.Username" readonly /><input type="hidden" name="Username" value="@Model.Username" /></div></div>
+        <div class="form-group"><div class="control-label col-md-2">Mật khẩu</div><div class="col-md-10"><input type="password" name="Password" class="form-control" />@Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })<span class="help-block">Để trống nếu không đổi mật khẩu.</span></div></div>
+        <div class="form-group"><div class="control-label col-md-2">Vai trò</div><div class="col-md-10"><select name="UserRole" class="form-control"><option value="C" @(Model.UserRole != null && Model.UserRole.Trim() == "C" ? "selected" : "")>C - Khách hàng</option><option value="A" @(Model.UserRole != null && Model.UserRole.Trim() == "A" ? "selected" : "")>A - Quản trị</option></select>@Html.ValidationMessageFor(model => model.UserRole, "", new { @class = "text-danger" })</div></div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Lưu" class="btn btn-primary" />
+                @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-primary" })
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,42 @@
+﻿@model _25DH230133_MyStore.Models.Order
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2 class="bg-success">CHI TIẾT ĐƠN HÀNG #@Model.OrderID</h2>
+<div class="bg-info" style="padding:10px 15px;">
+    <dl>
+        <dt>Khách hàng</dt><dd>@Model.Customer.CustomerName (@Model.Customer.CustomerPhone)</dd>
+        <dt>Ngày đặt hàng</dt><dd>@Model.OrderDate.ToString("dd/MM/yyyy")</dd>
+        <dt>Địa chỉ giao hàng</dt><dd>@Model.ShippingAddress</dd>
+        <dt>Phương thức giao hàng</dt><dd>@Model.DeliveryMethod</dd>
+        <dt>Phương thức thanh toán</dt><dd>@Model.PaymentMethod</dd>
+        <dt>Trạng thái</dt><dd>@Model.PaymentStatus</dd>
+        <dt>Tổng tiền</dt><dd>@Model.TotalAmount.ToString("N0")</dd>
+    </dl>
+</div>
+
+<table class="table" style="margin-top:15px;">
+    <tr class="success"><th>Hình ảnh</th><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
+    @foreach (var d in Model.OrderDetails)
+    {
+        <tr class="info">
+            <td><img src="@d.Product.ImageUrl" style="max-height:60px;" /></td>
+            <td>@d.Product.ProductName</td>
+            <td>@d.Quantity</td>
+            <td>@d.UnitPrice.ToString("N0")</td>
+            <td>@((d.Quantity * d.UnitPrice).ToString("N0"))</td>
+        </tr>
+    }
+</table>
+
+@using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post, new { @class = "form-inline" }))
+{
+    @Html.AntiForgeryToken()
+    <label>Cập nhật trạng thái:</label>
+    <select name="status" class="form-control"><option value="Chưa thanh toán" @(Model.PaymentStatus == "Chưa thanh toán" ? "selected" : "")>Chưa thanh toán</option><option value="Thanh toán tiền mặt" @(Model.PaymentStatus == "Thanh toán tiền mặt" ? "selected" : "")>Thanh toán tiền mặt</option><option value="Thanh toán paypal" @(Model.PaymentStatus == "Thanh toán paypal" ? "selected" : "")>Thanh toán paypal</option><option value="Trả góp" @(Model.PaymentStatus == "Trả góp" ? "selected" : "")>Trả góp</option><option value="Đã thanh toán" @(Model.PaymentStatus == "Đã thanh toán" ? "selected" : "")>Đã thanh toán</option><option value="Đang xử lý" @(Model.PaymentStatus == "Đang xử lý" ? "selected" : "")>Đang xử lý</option><option value="Đang giao" @(Model.PaymentStatus == "Đang giao" ? "selected" : "")>Đang giao</option><option value="Hoàn thành" @(Model.PaymentStatus == "Hoàn thành" ? "selected" : "")>Hoàn thành</option><option value="Đã hủy" @(Model.PaymentStatus == "Đã hủy" ? "selected" : "")>Đã hủy</option></select>
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-primary" })
+}
