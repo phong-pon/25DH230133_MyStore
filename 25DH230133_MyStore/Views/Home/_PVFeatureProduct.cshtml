@@ -12,8 +12,10 @@
             {
                 <div class="fproduct-item">
                     <div>
-                        <a href="@Url.Action("ProductDetail", "Home", new { id = product.ProductID })">
-                            <img src="@Html.DisplayFor(modelItem => product.ProductImage)" />
+                        <a href="@Url.Action("ProductDetails", "Home", new { id = product.ProductID })">
+                            <img src="@Url.Content(product.ProductImage)"
+                                 alt="@product.ProductName"
+                                 style="width: 100%; height: 150px; object-fit: contain;" />
                         </a>
                     </div>
                     <div>

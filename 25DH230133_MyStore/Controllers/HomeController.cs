@@ -70,10 +70,12 @@ namespace _25DH230133_MyStore.Controllers
             model.RelatedProducts = products.OrderBy(p => p.ProductID).Take(8).ToPagedList(pageNumber, pageSize);
             model.TopProducts = products.OrderByDescending(p => p.OrderDetail.Count()).Take(8).ToPagedList(pageNumber, pageSize);
 
-            if (quantity.HasValue)
-            {
-                model.quantity = quantity.Value;
-            }
+            model.quantity = quantity.HasValue && quantity.Value > 0
+                ? quantity.Value
+                : 1;
+
+            // Tính tạm tính
+            model.estimatedValue = pro.ProductPrice * model.quantity;
 
             return View(model);
         }

@@ -43,7 +43,10 @@
         @* Khối bên trái *@
         <div class="col-md-3 pro-section">
             @* Ảnh sản phẩm *@
-            <img src="@Model.product.ProductImage" />
+            <img src="@Url.Content(Model.product.ProductImage)"
+                 alt="@Model.product.ProductName"
+                 style="width:100%; height:400px; object-fit:contain;"
+                 onerror="this.style.display='none';" />
         </div>
 
         @* Khối ở giữa *@
@@ -73,12 +76,22 @@
                 {
                     <h4><strong>Số lượng</strong></h4>
                     <p>
-                        @Html.TextBoxFor(model => model.quantity, new
-                     { @class = "form-control", @type = "number", @min = 1 })
+                        <input type="number"
+                               id="quantityInput"
+                               name="quantity"
+                               class="form-control"
+                               value="@Model.quantity"
+                               min="1"
+                               step="1"
+                               data-price="@Model.product.ProductPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
                 </p>
 
                 <h4><strong>Tạm tính</strong></h4>
-                <p>@Model.estimatedValue.ToString("N0")</p>
+                <p>
+                    <strong id="estimatedValue">
+                        @Model.estimatedValue.ToString("N0") đ
+                    </strong>
+                </p>
 
                 <p>
                     @Html.ActionLink("Thêm vào giỏ hàng", "AddToCart", "Cart",
@@ -94,4 +107,31 @@
         </div>
     </div>
 </div>
+@*tính tiền tự động phần tạm tính*@ 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const quantityInput = document.getElementById("quantityInput");
+        const estimatedValue = document.getElementById("estimatedValue");
+
+        const price = parseFloat(quantityInput.dataset.price);
+
+        function calculateTotal() {
+            let quantity = parseInt(quantityInput.value) || 1;
+
+            if (quantity < 1) {
+                quantity = 1;
+                quantityInput.value = 1;
+            }
+
+            const total = price * quantity;
+
+            estimatedValue.textContent =
+                new Intl.NumberFormat('vi-VN').format(total) + " đ";
+        }
+
+        quantityInput.addEventListener("input", calculateTotal);
+
+        calculateTotal();
+    });
+</script>
 

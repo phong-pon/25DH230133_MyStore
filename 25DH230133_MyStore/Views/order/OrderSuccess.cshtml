@@ -1,4 +1,4 @@
-@model _25DH230133_MyStore.Models.Order
+﻿@model _25DH230133_MyStore.Models.Order
 
 @{
     ViewBag.Title = "Xác nhận đơn hàng";
@@ -29,7 +29,7 @@
             <tr><th colspan="2">Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
         </thead>
         <tbody>
-            @foreach (var d in Model.OrderDetails)
+            @foreach (var d in Model.OrderDetail)
             {
                 <tr>
                     <td><img src="@d.Product.ImageUrl" style="max-height:60px;" /></td>

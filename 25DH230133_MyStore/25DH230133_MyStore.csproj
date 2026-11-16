@@ -311,11 +311,11 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
-    <Content Include="Views\order\Checkout.cshtml" />
-    <Content Include="Views\order\OrderSuccess.cshtml" />
     <Content Include="Views\Account\Profile.cshtml" />
     <Content Include="Views\order\OrderHistory.cshtml" />
     <Content Include="Views\Cart\Index2.cshtml" />
+    <Content Include="Views\order\Checkout.cshtml" />
+    <Content Include="Views\order\OrderSuccess.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

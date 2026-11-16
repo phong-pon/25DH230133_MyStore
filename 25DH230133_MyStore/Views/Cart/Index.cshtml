@@ -85,7 +85,7 @@
                 <tbody>
                     @foreach (var item in Model.Items) { 
                         <tr>
-                            <td><img src="@item.ProductImage" alt="@item.ProductName" style="max-height:80px;" /></td>
+                            <td><img src="@Url.Content(item.ProductImage)"alt="@item.ProductName"style="width:100px; height:120px; object-fit:contain;" /></td>
                             <td class="col-md-3">@item.ProductName</td>
                             <td>
                                 @using (Html.BeginForm("UpdateQuantity", "Cart", FormMethod.Post))
@@ -99,7 +99,7 @@
 
                             <td>@item.UnitPrice.ToString("N0")</td>
                             <td>@item.TotalPrice.ToString("N0")</td>
-                            <td><a href="@Url.Action("RemoteFromCart", "Cart", new {id= item.ProductID})">
+                            <td><a href="@Url.Action("RemoveFromCart", "Cart", new { id = item.ProductID })">
                                     <img src="~/Images/remove.png" style="max-height:20px;" />
                                 </a>
                             </td>
@@ -110,11 +110,44 @@
         </div>
         <div class="col-md-3 cart-section">
             <div><strong>Tổng giá trị: &nbsp;<span style="color: red;">@Model.TotalValue().ToString("N0")</span></strong></div>
-            <div>@Html.ActionLink("Mua hàng", "Checkout", "Cart", null, new { @class="btn btn-danger cart-button" })</div>
+            <div>
+                @Html.ActionLink("Mua hàng","Checkout","Order",null,new { @class = "btn btn-primary" })
+                    </div>
         </div>
     }
 </div>
 <div class="col-md-12"> @Html.ActionLink("tiếp tục mua hàng","Index", "Home", null, new {@class = "btn btn-warning cart-button"})</div>
+
+<script>
+    function cartUpdateQuantity(productId, quantity) {
+        if (quantity < 1) {
+            quantity = 1;
+        }
+
+        if (quantity > 100) {
+            quantity = 100;
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateQuantity", "Cart")',
+            type: 'POST',
+            data: {
+                id: productId,
+                quantity: quantity
+            },
+            success: function (response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || "Không thể cập nhật số lượng!");
+                }
+            },
+            error: function () {
+                alert("Có lỗi khi cập nhật số lượng!");
+            }
+        });
+    }
+</script>
 
 
 

@@ -81,10 +81,21 @@ namespace _25DH230133_MyStore.Controllers
         [HttpPost]
         public ActionResult UpdateQuantity(int id, int quantity)
         {
-            var cartService = GetCartService();
-            cartService.GetCart().UpdateQuantity(id, quantity);
-            return RedirectToAction("Index");
+            if (quantity < 1 || quantity > 100)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số lượng không hợp lệ!"
+                });
+            }
+
+            // TODO: Cập nhật số lượng sản phẩm trong giỏ hàng
+            // Giữ nguyên logic cập nhật giỏ hàng hiện tại của mày.
+
+            return Json(new { success = true });
         }
+
 
     }
 }

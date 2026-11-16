@@ -14,11 +14,17 @@
                 <li class="product-item">
                     <div>
                         <a href="@Url.Action("ProductDetails", "Home", new { id = product.ProductID })">
-                            <img src="@Html.DisplayFor(modelItem => product.ProductImage)" />
+                            @if (!string.IsNullOrWhiteSpace(product.ProductImage))
+                            {
+                                <img src="@Url.Content(product.ProductImage)"
+                                     alt="@product.ProductName"
+                                     style="width:160px; height:230px; object-fit:contain;" />
+                            }
                         </a>
                     </div>
+
                     <div>
-                        <h5>@Html.DisplayFor(modelItem => product.ProductName)</h5>
+                        <h5>@product.ProductName</h5>
                         <p class="prodSale">@Html.DisplayFor(modelItem => product.ProductPrice)</p>
                     </div>
                 </li>

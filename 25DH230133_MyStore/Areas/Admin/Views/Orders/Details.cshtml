@@ -20,7 +20,7 @@
 
 <table class="table" style="margin-top:15px;">
     <tr class="success"><th>Hình ảnh</th><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
-    @foreach (var d in Model.OrderDetails)
+    @foreach (var d in Model.OrderDetail)
     {
         <tr class="info">
             <td><img src="@d.Product.ImageUrl" style="max-height:60px;" /></td>
