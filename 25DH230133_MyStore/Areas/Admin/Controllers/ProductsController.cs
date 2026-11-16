@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -11,25 +11,29 @@ using _25DH230133_MyStore.Models.ViewModel;
 using PagedList;
 using PagedList.Mvc;
 
+
 namespace _25DH230133_MyStore.Areas.Admin.Controllers
 {
+    [_25DH230133_MyStore.Areas.Admin.AdminAuthorize]
     public class ProductsController : Controller
     {
+
+
         private MyStoreEntities db = new MyStoreEntities();
 
         // GET: Admin/Products
         public ActionResult Index(string searchTerm, decimal? minPrice, decimal? maxPrice, string sortOrder, int? page)
         {
-            var model = new ProductSearchVM();
-            var products = db.Product.AsQueryable();
+            var model = new HomeProductVM();
+            var products = db.Products.Include(p => p.Category).AsQueryable();
             //timd kiếm dựa theo tên sản phẩm 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 model.SearchTerm = searchTerm;
                 products = products.Where(p =>
                         p.ProductName.Contains(searchTerm) ||
-                        p.ProductDescription.Contains(searchTerm) ||
-                        p.Category.CategoryName.Contains(searchTerm));            
+                        (p.ProductDescription != null && p.ProductDescription.Contains(searchTerm)) ||
+                        p.Category.CategoryName.Contains(searchTerm));
             }
             // tìm kiếm dựa theo giá tối đa 
             if (minPrice.HasValue)
@@ -43,7 +47,7 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
                 products = products.Where(p => p.ProductPrice <= maxPrice.Value);
             }
             // áp dụng sắp xếp dựa trên lựa chọn của người  dùng 
-            switch(sortOrder)
+            switch (sortOrder)
             {
                 case "name_asc":
                     products = products.OrderBy(p => p.ProductName);
@@ -66,11 +70,11 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
             //đoạn code liên quan tới phân trang 
             //lấy số trang hiện tại ( mặc định là 1 nếu không có giá trị )
             int pageNumber = page ?? 1;
-            int pageSize = 2; // số lượng sản phẩm trên mỗi trang
+            int pageSize = 10; // số lượng sản phẩm trên mỗi trang
 
             //đóng câu lệnh này, sử dụng ToPageList để lấy danh sách đã phân trang 
             //model.Products = products.ToList();
-            model.Products = products.ToPagedList(pageNumber, pageSize);
+            model.NewProducts = products.ToPagedList(pageNumber, pageSize);
 
 
             return View(model);
@@ -84,7 +88,7 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
+            Product product = db.Products.Find(id);
             if (product == null)
             {
                 return HttpNotFound();
@@ -95,7 +99,7 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
         // GET: Admin/Products/Create
         public ActionResult Create()
         {
-            ViewBag.CategoryID = new SelectList(db.Category, "CategoryID", "CategoryName");
+            ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName");
             return View();
         }
 
@@ -104,16 +108,23 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ProductID,CategoryID,ProductName,ProductPrice,ProductImage,ProductDescription")] Product product)
+        public ActionResult Create([Bind(Include = "ProductID,CategoryID,ProductName,ProductPrice,ProductImage,ProductDescription")] Product product, HttpPostedFileBase imageFile)
         {
+            if (imageFile != null && imageFile.ContentLength > 0)
+            {
+                var ext = System.IO.Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                if (!new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext)) ModelState.AddModelError("", "Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+                else if (imageFile.ContentLength > 5 * 1024 * 1024) ModelState.AddModelError("", "Ảnh không được vượt quá 5 MB.");
+                else { var fileName = Guid.NewGuid().ToString("N") + ext; var folder = Server.MapPath("~/Content/images"); if (!System.IO.Directory.Exists(folder)) System.IO.Directory.CreateDirectory(folder); imageFile.SaveAs(System.IO.Path.Combine(folder, fileName)); product.ProductImage = "~/Content/images/" + fileName; }
+            }
             if (ModelState.IsValid)
             {
-                db.Product.Add(product);
+                db.Products.Add(product);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.CategoryID = new SelectList(db.Category, "CategoryID", "CategoryName", product.CategoryID);
+            ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName", product.CategoryID);
             return View(product);
         }
 
@@ -124,12 +135,12 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
+            Product product = db.Products.Find(id);
             if (product == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.CategoryID = new SelectList(db.Category, "CategoryID", "CategoryName", product.CategoryID);
+            ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName", product.CategoryID);
             return View(product);
         }
 
@@ -138,15 +149,25 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ProductID,CategoryID,ProductName,ProductPrice,ProductImage,ProductDescription")] Product product)
+        public ActionResult Edit([Bind(Include = "ProductID,CategoryID,ProductName,ProductPrice,ProductImage,ProductDescription")] Product product, HttpPostedFileBase imageFile)
         {
+            var existing = db.Products.Find(product.ProductID);
+            if (existing == null) return HttpNotFound();
+            product.ProductImage = existing.ProductImage;
+            if (imageFile != null && imageFile.ContentLength > 0)
+            {
+                var ext = System.IO.Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                if (!new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext)) ModelState.AddModelError("", "Chỉ chấp nhận ảnh JPG, PNG, GIF hoặc WEBP.");
+                else if (imageFile.ContentLength > 5 * 1024 * 1024) ModelState.AddModelError("", "Ảnh không được vượt quá 5 MB.");
+                else { var fileName = Guid.NewGuid().ToString("N") + ext; var folder = Server.MapPath("~/Content/images"); if (!System.IO.Directory.Exists(folder)) System.IO.Directory.CreateDirectory(folder); imageFile.SaveAs(System.IO.Path.Combine(folder, fileName)); product.ProductImage = "~/Content/images/" + fileName; }
+            }
             if (ModelState.IsValid)
             {
-                db.Entry(product).State = EntityState.Modified;
+                db.Entry(existing).CurrentValues.SetValues(product);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.CategoryID = new SelectList(db.Category, "CategoryID", "CategoryName", product.CategoryID);
+            ViewBag.CategoryID = new SelectList(db.Categories, "CategoryID", "CategoryName", product.CategoryID);
             return View(product);
         }
 
@@ -157,7 +178,7 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Product product = db.Product.Find(id);
+            Product product = db.Products.Find(id);
             if (product == null)
             {
                 return HttpNotFound();
@@ -170,8 +191,9 @@ namespace _25DH230133_MyStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Product product = db.Product.Find(id);
-            db.Product.Remove(product);
+            Product product = db.Products.Find(id);
+            if (product == null) return HttpNotFound();
+            db.Products.Remove(product);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

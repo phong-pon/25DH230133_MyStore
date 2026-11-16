@@ -1,100 +1,38 @@
-﻿
-@model _25DH230133_MyStore.Models.ViewModel.ProductSearchVM
+﻿@model _25DH230133_MyStore.Models.ViewModel.HomeProductVM
+@using PagedList.Mvc
 
 @{
-    ViewBag.Title = "Search Product";
+    ViewBag.Title = "Sản phẩm";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
+@* Tìm kiếm theo tên / mô tả / danh mục và theo khoảng giá *@
+@using (Html.BeginForm("Index", "Products", FormMethod.Get, new { @class = "text-center", style = "margin-top:10px;" }))
+{
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" style="display:inline-block;width:300px;" placeholder="Nhập tên, mô tả hoặc chủng loại sản phẩm" />
+    <input type="text" name="minPrice" value="@Model.MinPrice" class="form-control" style="display:inline-block;width:180px;" placeholder="Nhập giá tối thiểu" />
+    <input type="text" name="maxPrice" value="@Model.MaxPrice" class="form-control" style="display:inline-block;width:180px;" placeholder="Nhập giá tối đa" />
+    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+}
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Search</title>
-    <style>
-        .search-container {
-            padding-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
-</head>
-<body>
-    <!-- Form tìm kiếm -->
-    @using (Html.BeginForm("Search", "Products", FormMethod.Get))
-    {
-        <div class="form-group search-container">
-            @Html.TextBoxFor(m => m.SearchTerm, new
-            {
-            @class = "form-control",
-            placeholder = "nhập tên, mô tả hoặc chủng loại sản phẩm"
-            })
-
-            @* bổ sung thêm trường tìm kiếm theo khoảng giá  *@
-            @Html.TextBoxFor(m => m.MinPrice, new
-            {
-                @class = "form-control",
-                placeholdel = "nhập giá tối thiểu",
-                Type = "number"
-            })
-
-            @Html.TextBoxFor(m => m.MaxPrice, new
-            {
-                @class = "form-control",
-                placeholdel = "nhập giá tối đa",
-                Type = "number"
-            })
-
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        </div>
-
-        <!-- tùy chọn tìm kiếm -->
-<div class="form-group order-container">
+<p class="text-center" style="margin-top:15px;">
     Sắp xếp theo:
-    @Html.ActionLink("Tên tăng dần", "Index", "Products",
-   new
-   {
-       sortOrder = "name_asc",
-       searchTerm = Model.SearchTerm,
-       minPrice = Model.MinPrice,
-       maxPrice = Model.MaxPrice
-   }, null)  |
-    @Html.ActionLink("tên giảm dần", "Index", "Products",
-   new
-   {
-       sortOrder = "name_desc",
-       searchTerm = Model.SearchTerm,
-       minPrice = Model.MinPrice,
-       maxPrice = Model.MaxPrice
-   }, null)  |
-    @Html.ActionLink("giá tăng dần", "Index", "Products",
-   new
-   {
-       sortOrder = "price_asc",
-       searchTerm = Model.SearchTerm,
-       minPrice = Model.MinPrice,
-       maxPrice = Model.MaxPrice
-       }, null)  |
-    @Html.ActionLink("giá giảm dần", "Index", "Products",
-   new
-   {
-      sortOrder = "price_desc",
-      searchTerm = Model.SearchTerm,
-      minPrice = Model.MinPrice,
-      maxPrice = Model.MaxPrice
-   }, null)     })
-</div>
-    }
-
-    @* form kết quả tìm kiếm *@
-    @Html.Partial("PVListProduct", Model)
-</body>
-</html>
-
-<p>
-    @Html.ActionLink("Thêm Mới", "Create", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Tên tăng dần", "Index", new { searchTerm = Model.SearchTerm, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "name_asc" })|
+    @Html.ActionLink("Tên giảm dần", "Index", new { searchTerm = Model.SearchTerm, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "name_desc" })|
+    @Html.ActionLink("Giá tăng dần", "Index", new { searchTerm = Model.SearchTerm, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "price_asc" })|
+    @Html.ActionLink("Giá giảm dần", "Index", new { searchTerm = Model.SearchTerm, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = "price_desc" })
 </p>
 
+<h2 class="bg-success">DANH SÁCH SẢN PHẨM</h2>
+@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+@Html.Partial("PVListProduct", Model)
 
+<div class="pagination-container">
+    @Html.PagedListPager(Model.NewProducts, page => Url.Action("Index", new {
+        page, searchTerm = Model.SearchTerm, minPrice = Model.MinPrice, maxPrice = Model.MaxPrice, sortOrder = Model.SortOrder }))
+</div>
 
+<p class="text-center">
+    @Html.ActionLink("Thêm mới", "Create", null, new { @class = "btn btn-primary" })
+</p>

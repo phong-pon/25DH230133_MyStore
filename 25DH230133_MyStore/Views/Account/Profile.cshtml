@@ -1,0 +1,41 @@
+﻿@model _25DH230133_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Thông tin tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding:0 15px;">
+    <h2>Thông tin tài khoản</h2>
+    @if (TempData["Message"] != null)
+    {<div class="alert alert-success">@TempData["Message"]</div>}
+    @if (TempData["Error"] != null)
+    {<div class="alert alert-danger">@TempData["Error"]</div>}
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Thông tin cá nhân</h4>
+            @using (Html.BeginForm("UpdateProfile", "Account", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group"><label class="control-label col-md-4">Tên đăng nhập</label><div class="col-md-8"><input class="form-control" value="@Model.Username" readonly /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Họ tên</label><div class="col-md-8"><input class="form-control" name="CustomerName" value="@Model.CustomerName" required /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Số điện thoại</label><div class="col-md-8"><input class="form-control" name="CustomerPhone" value="@Model.CustomerPhone" required /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Email</label><div class="col-md-8"><input class="form-control" type="email" name="CustomerEmail" value="@Model.CustomerEmail" /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Địa chỉ</label><div class="col-md-8"><input class="form-control" name="CustomerAddress" value="@Model.CustomerAddress" /></div></div>
+                <div class="form-group"><div class="col-md-offset-4 col-md-8"><input type="submit" value="Lưu thay đổi" class="btn btn-info" /></div></div>
+            }
+        </div>
+        <div class="col-md-6">
+            <h4>Đổi mật khẩu</h4>
+            @using (Html.BeginForm("ChangePassword", "Account", FormMethod.Post, new { @class = "form-horizontal" }))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group"><label class="control-label col-md-4">Mật khẩu hiện tại</label><div class="col-md-8"><input class="form-control" type="password" name="CurrentPassword" required /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Mật khẩu mới</label><div class="col-md-8"><input class="form-control" type="password" name="NewPassword" required /></div></div>
+                <div class="form-group"><label class="control-label col-md-4">Xác nhận</label><div class="col-md-8"><input class="form-control" type="password" name="ConfirmPassword" required /></div></div>
+                <div class="form-group"><div class="col-md-offset-4 col-md-8"><input type="submit" value="Đổi mật khẩu" class="btn btn-info" /></div></div>
+            }
+        </div>
+    </div>
+</div>
+

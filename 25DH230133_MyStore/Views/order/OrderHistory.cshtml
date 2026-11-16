@@ -1,0 +1,62 @@
+﻿@model IEnumerable<_25DH230133_MyStore.Models.Order>
+
+@{
+    ViewBag.Title = "Lịch sử mua hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string status = ViewBag.Status as string ?? "all";
+    string searchTerm = ViewBag.SearchTerm as string;
+}
+
+<div style="padding:0 15px;">
+    <h2>ĐƠN HÀNG CỦA TÔI</h2>
+    <ul class="nav nav-tabs" style="display:block;">
+        <li class="@(status == "all" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "all", searchTerm = searchTerm })">Tất cả đơn</a></li>
+        <li class="@(status == "Chưa thanh toán" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "Chưa thanh toán", searchTerm = searchTerm })">Chưa thanh toán</a></li>
+        <li class="@(status == "Thanh toán tiền mặt" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "Thanh toán tiền mặt", searchTerm = searchTerm })">Tiền mặt</a></li>
+        <li class="@(status == "Thanh toán paypal" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "Thanh toán paypal", searchTerm = searchTerm })">Paypal</a></li>
+        <li class="@(status == "Trả góp" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "Trả góp", searchTerm = searchTerm })">Trả góp</a></li>
+        <li class="@(status == "Đã hủy" ? "active" : "")"><a href="@Url.Action("OrderHistory", "Order", new { status = "Đã hủy", searchTerm = searchTerm })">Đã hủy</a></li>
+    </ul>
+
+    @using (Html.BeginForm("OrderHistory", "Order", FormMethod.Get, new { @class = "form-inline", style = "margin:15px 0;" }))
+    {
+        <input type="hidden" name="status" value="@status" />
+        <input type="text" name="searchTerm" value="@searchTerm" class="form-control" style="width:420px;" placeholder="Tìm đơn hàng theo mã đơn hàng hoặc tên sản phẩm" />
+        <button type="submit" class="btn btn-primary">Tìm đơn hàng</button>
+    }
+
+    @if (!Model.Any())
+    {
+        <p>Bạn chưa có đơn hàng nào.</p>
+    }
+    @foreach (var o in Model)
+    {
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong>Đơn hàng #@o.OrderID</strong> &nbsp;-&nbsp; @o.OrderDate.ToString("dd/MM/yyyy")
+                <span class="pull-right label label-info">@o.PaymentStatus</span>
+            </div>
+            <div class="panel-body">
+                @foreach (var d in o.OrderDetail.Take(3))
+                {
+                    <div style="margin-bottom:8px;">
+                        <img src="@d.Product.ImageUrl" style="max-height:50px;" />
+                        <span>@d.Product.ProductName</span> &nbsp; <span class="text-muted">x@(d.Quantity)</span>
+                        <span class="pull-right">@d.UnitPrice.ToString("N0")</span>
+                    </div>
+                }
+                @if (o.OrderDetail.Count > 3)
+                {<p class="text-muted">Và @(o.OrderDetail.Count - 3) sản phẩm khác...</p>}
+                <div class="text-right">
+                    <p>Tổng tiền: <strong style="color:red;font-size:large;">@o.TotalAmount.ToString("N0")</strong></p>
+                    @using (Html.BeginForm("Reorder", "Order", new { id = o.OrderID }, FormMethod.Post, new { style = "display:inline;" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-default">Mua lại</button>
+                    }
+                    @Html.ActionLink("Xem chi tiết", "Details", new { id = o.OrderID }, new { @class = "btn btn-default" })
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -19,7 +19,7 @@ namespace _25DH230133_MyStore.Controllers
         public ActionResult Index (string searchTerm, int? page)
         {
             var model = new HomeProductVM();
-            var products = db.Product.AsQueryable();
+            var products = db.Products.AsQueryable();
             // tìm kiếm sản phẩm dựa trên từ khóa 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -51,14 +51,14 @@ namespace _25DH230133_MyStore.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            Product pro = db.Product.Find(id);
+            Product pro = db.Products.Find(id);
             if (pro == null)
             {
                 return HttpNotFound();
             }
 
             // lấy tất cả các sản phẩm cùng danh mục
-            var products = db.Product.Where(p => p.CategoryID == pro.CategoryID && p.ProductID != pro.ProductID).AsQueryable();
+            var products = db.Products.Where(p => p.CategoryID == pro.CategoryID && p.ProductID != pro.ProductID).AsQueryable();
 
             ProductDetailsVM model = new ProductDetailsVM();
 

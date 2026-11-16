@@ -1,5 +1,6 @@
 ﻿using _25DH230133_MyStore.Models;
 using _25DH230133_MyStore.Models.ViewModel;
+using PagedList;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +28,32 @@ namespace _25DH230133_MyStore.Controllers
             return View(cart);
         }
 
+        // Hiển thị giỏ hàng đã gom nhóm sản phẩm theo danh mục
+        public ActionResult Index2(int? page)
+        {
+            var cart = GetCartService().GetCart();
+            var categories = cart.Items.Select(ci => ci.Category).Distinct().ToList();
+            var inCartIds = cart.Items.Select(ci => ci.ProductID).ToList();
+
+            // sản phẩm cùng danh mục với các sản phẩm trong giỏ và chưa có trong giỏ
+            var similarProducts = db.Products
+                .Where(p => categories.Contains(p.Category.CategoryName) && !inCartIds.Contains(p.ProductID))
+                .OrderBy(p => p.ProductID);
+
+            // Đoạn code liên quan tới phân trang
+            // Lấy số trang hiện tại (mặc định là 1 nếu không có giá trị)
+            int pageNumber = page ?? 1;
+            int pageSize = cart.PageSize;  // Số sản phẩm mỗi trang
+            cart.PageNumber = pageNumber;
+
+            cart.SimilarProducts = similarProducts.ToPagedList(pageNumber, pageSize);
+            return View("Index2", cart);
+        }
+
         // Thêm san phẩm vao gio
         public ActionResult AddToCart(int id, int quantity = 1)
         {
-            var product = db.Product.Find(id);
+            var product = db.Products.Find(id);
             if (product != null)
             {
                 var cartService = GetCartService();

@@ -1,18 +1,45 @@
 ﻿@{
-    // lấy thông tin giỏ hàng
+    //// lấy thông tin giỏ hàng
+    //var cart = Session["Cart"] as _25DH230133_MyStore.Models.ViewModel.Cart;
+
+    ////Tạo đối tượng ViewBag.pmmodel dạng PersonalMenuVM, và lưu trong ViewBag,
+    ////khởi tạo giá trị dựa trên thông tin tài khoản đăng nhập
+    //ViewBag.pmmodel = new _25DH230133_MyStore.Models.ViewModel.PersonalMenuVM
+    //{
+    //    IsLoggedIn = isAuthenticated ||
+    //                     !string.IsNullOrWhiteSpace(sessionUsername),
+    //    Username = User.Identity.IsAuthenticated ? User.Identity.Name : string.Empty
+    //};
+    ////nếu giỏ hàng không rỗng thì gán số lượng mặt hàng trong giỏ cho CartCount
+    //if (cart != null && cart.Items.Any()) {
+    //    ViewBag.pmmodel.CartCount = cart.Items.Count();
+
+    // Lấy thông tin giỏ hàng
     var cart = Session["Cart"] as _25DH230133_MyStore.Models.ViewModel.Cart;
 
-    //Tạo đối tượng ViewBag.pmmodel dạng PersonalMenuVM, và lưu trong ViewBag,
-    //khởi tạo giá trị dựa trên thông tin tài khoản đăng nhập
+    // Kiểm tra trạng thái đăng nhập
+    bool isAuthenticated = User.Identity.IsAuthenticated;
+
+    // Lấy Username từ Session
+    string sessionUsername = Session["Username"] as string;
+
+    // Khởi tạo PersonalMenuVM
     ViewBag.pmmodel = new _25DH230133_MyStore.Models.ViewModel.PersonalMenuVM
     {
-        IsLoggedIn = User.Identity.IsAuthenticated,
-        Username = User.Identity.IsAuthenticated ? User.Identity.Name : string.Empty
+        IsLoggedIn = isAuthenticated ||
+                     !string.IsNullOrWhiteSpace(sessionUsername),
+
+        Username = isAuthenticated
+            ? User.Identity.Name
+            : sessionUsername ?? string.Empty
     };
-    //nếu giỏ hàng không rỗng thì gán số lượng mặt hàng trong giỏ cho CartCount
-    if (cart != null && cart.Items.Any()) {
+
+    // Cập nhật số lượng sản phẩm trong giỏ hàng
+    if (cart != null && cart.Items.Any())
+    {
         ViewBag.pmmodel.CartCount = cart.Items.Count();
     }
+}
 }
 
 <!DOCTYPE html>

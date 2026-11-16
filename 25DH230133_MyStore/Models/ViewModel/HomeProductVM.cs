@@ -21,6 +21,9 @@ namespace _25DH230133_MyStore.Models.ViewModel
         // danh sách sản phẩm mới đã phân trang
         public PagedList.IPagedList<Product> NewProducts { get; set; } // Danh sách sản phẩm mới
 
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
 
+        public string SortOrder { get; set; }
     }
 }

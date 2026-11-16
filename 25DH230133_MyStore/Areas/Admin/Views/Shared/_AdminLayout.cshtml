@@ -1,46 +1,289 @@
-﻿<!DOCTYPE html>
+﻿@*<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>@ViewBag.Title - Quản Trị WebSite</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" />
+        @Styles.Render("~/Content/css")
+        @Scripts.Render("~/bundles/modernizr")
+    </head>
+    <body class="admin-body">
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.ActionLink("My Store", "Index", "Home", new { area = "Admin" }, new { @class = "navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Home", "Index", "Home", new { area = "Admin" }, null)</li>
+                        <li>@Html.ActionLink("Danh mục", "Index", "Categories", new { area = "Admin" }, null)</li>
+                        <li>@Html.ActionLink("Sản phẩm", "Index", "Products", new { area = "Admin" }, null)</li>
+                        <li>@Html.ActionLink("Khách hàng", "Index", "Customers", new { area = "Admin" }, null)</li>
+                        <li>@Html.ActionLink("Đơn hàng", "Index", "Orders", new { area = "Admin" }, null)</li>
+                        <li>@Html.ActionLink("Tài khoản", "Index", "Users", new { area = "Admin" }, null)</li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>@Html.ActionLink("Đăng xuất", "Logout", "Account", new { area = "" }, null)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="container body-content">
+            @RenderBody()
+            <hr />
+            <footer>
+                <p>&copy; 2024 - Tên ứng dụng</p>
+                <h4>Contact</h4>
+                <p>Tên các thành viên trong nhóm</p>
+            </footer>
+        </div>
+
+        @Scripts.Render("~/bundles/jquery")
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+        @RenderSection("scripts", required: false)
+    </body>
+    </html>*@
+
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - QUẢN TRỊ WEBSITE</title>
+
+    <title>@ViewBag.Title - My Store</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" />
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-</head>
-<body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("My Store", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Danh mục", "Index", "Categories", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Sản phẩm", "Index", "Products", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Khách hàng ", "Index", "Customers", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Đơn hàng", "Index", "Orders", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Tài khoảng", "Index", "Users", new { area = "" }, new { @class = "nav-link" })</li>
 
+    <style>
+        /* Thanh Navbar Admin */
+        .admin-navbar {
+            width: 100%;
+            min-height: 66px;
+            background-color: #222;
+            border-bottom: 1px solid #444;
+            margin: 0;
+            border-radius: 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        /* Container */
+        .admin-navbar .admin-container {
+            max-width: 900px;
+            width: calc(100% - 30px);
+            margin: 0 auto;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Logo My Store */
+        .admin-navbar .navbar-brand {
+            color: #aaa !important;
+            font-size: 23px;
+            padding: 0 15px;
+            height: 65px;
+            line-height: 65px;
+            white-space: nowrap;
+        }
+
+        .admin-navbar .navbar-brand:hover {
+            color: #fff !important;
+        }
+
+        /* Danh sách menu */
+        .admin-navbar .navbar-collapse {
+            display: flex !important;
+            align-items: center;
+            flex: 1;
+            justify-content: space-between;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        .admin-navbar .navbar-nav {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center;
+            float: none !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-navbar .navbar-nav > li {
+            float: none !important;
+            display: block !important;
+        }
+
+        /* Link menu */
+        .admin-navbar .navbar-nav > li > a {
+            color: #aaa !important;
+            font-size: 18px;
+            padding: 0 15px;
+            line-height: 65px;
+            height: 65px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .admin-navbar .navbar-nav > li > a:hover,
+        .admin-navbar .navbar-nav > li > a:focus {
+            color: #fff !important;
+            background-color: #333 !important;
+        }
+
+        /* Nút đăng xuất */
+        .admin-navbar .navbar-right {
+            margin-left: auto;
+        }
+
+        /* Nội dung trang */
+        .admin-body {
+            padding-top: 0 !important;
+            background-color: #fff;
+        }
+
+        .admin-body .body-content {
+            padding-top: 25px;
+        }
+
+        /* Responsive */
+        @@media (max-width: 767px) {
+            .admin-navbar .admin-container {
+                display: block;
+                width: 100%;
+            }
+
+            .admin-navbar .navbar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                min-height: 65px;
+            }
+
+            .admin-navbar .navbar-toggle {
+                margin-top: 15px;
+                margin-right: 15px;
+            }
+
+            .admin-navbar .navbar-collapse {
+                display: block !important;
+                overflow-x: auto;
+            }
+
+            .admin-navbar .navbar-nav {
+                display: flex !important;
+                flex-wrap: wrap;
+            }
+
+            .admin-navbar .navbar-nav > li > a {
+                line-height: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+
+    <nav class="admin-navbar">
+        <div class="admin-container">
+
+            <div class="navbar-header">
+                @Html.ActionLink(
+                    "My Store",
+                    "Index",
+                    "Home",
+                    new { area = "Admin" },
+                    new { @class = "navbar-brand" }
+                )
+
+                <button type="button"
+                        class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#adminNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <div class="navbar-collapse collapse" id="adminNavbar">
+
+                <ul class="nav navbar-nav">
+                    <li>
+                        @Html.ActionLink("Home", "Index", "Home",
+                            new { area = "Admin" }, null)
+                    </li>
+
+                    <li>
+                        @Html.ActionLink("Danh mục", "Index", "Categories",
+                            new { area = "Admin" }, null)
+                    </li>
+
+                    <li>
+                        @Html.ActionLink("Sản phẩm", "Index", "Products",
+                            new { area = "Admin" }, null)
+                    </li>
+
+                    <li>
+                        @Html.ActionLink("Khách hàng", "Index", "Customers",
+                            new { area = "Admin" }, null)
+                    </li>
+
+                    <li>
+                        @Html.ActionLink("Đơn hàng", "Index", "Orders",
+                            new { area = "Admin" }, null)
+                    </li>
+
+                    <li>
+                        @Html.ActionLink("Tài khoản", "Index", "Users",
+                            new { area = "Admin" }, null)
+                    </li>
                 </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        @Html.ActionLink("Đăng xuất", "Logout", "Account",
+                            new { area = "" }, null)
+                    </li>
+                </ul>
+
             </div>
         </div>
     </nav>
+
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Tên ứng dụng </p>
-            <h4>Contact</h4>
-            <p> Tên các thành viên trong nhóm</p>
 
+        <hr />
+
+        <footer>
+            <p>&copy; 2024 - Tên ứng dụng</p>
+            <h4>Contact</h4>
+            <p>Tên các thành viên trong nhóm</p>
         </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+
     @RenderSection("scripts", required: false)
+
 </body>
 </html>
+

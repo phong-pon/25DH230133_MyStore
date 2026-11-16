@@ -1,0 +1,48 @@
+@model _25DH230133_MyStore.Models.Order
+
+@{
+    ViewBag.Title = "Xác nhận đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="padding:0 15px;">
+    <h2>XÁC NHẬN ĐƠN HÀNG</h2>
+    <div class="alert alert-success">Đặt hàng thành công! Mã đơn hàng của bạn là <strong>#@Model.OrderID</strong>.</div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Thông tin đơn hàng</h4>
+            <table class="table">
+                <tr><th style="width:200px;">Ngày đặt hàng</th><td>@Model.OrderDate.ToString("dd/MM/yyyy")</td></tr>
+                <tr><th>Địa chỉ giao hàng</th><td>@Model.ShippingAddress</td></tr>
+                <tr><th>Phương thức giao hàng</th><td>@Model.DeliveryMethod</td></tr>
+                <tr><th>Phương thức thanh toán</th><td>@Model.PaymentMethod</td></tr>
+                <tr><th>Trạng thái thanh toán</th><td>@Model.PaymentStatus</td></tr>
+                <tr><th>Tổng giá trị</th><td><strong style="color:red;">@Model.TotalAmount.ToString("N0")</strong></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <h4>Chi tiết sản phẩm</h4>
+    <table class="table">
+        <thead>
+            <tr><th colspan="2">Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.OrderDetails)
+            {
+                <tr>
+                    <td><img src="@d.Product.ImageUrl" style="max-height:60px;" /></td>
+                    <td>@d.Product.ProductName</td>
+                    <td>@d.Quantity</td>
+                    <td>@d.UnitPrice.ToString("N0")</td>
+                    <td>@((d.Quantity * d.UnitPrice).ToString("N0"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p>
+        @Html.ActionLink("Tiếp tục mua hàng", "Index", "Home", null, new { @class = "btn btn-warning" })
+        @Html.ActionLink("Lịch sử mua hàng", "OrderHistory", "Order", null, new { @class = "btn btn-info" })
+    </p>
+</div>

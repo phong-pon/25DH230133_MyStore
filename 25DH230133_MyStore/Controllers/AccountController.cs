@@ -1,12 +1,7 @@
 ﻿using _25DH230133_MyStore.Models;
 using _25DH230133_MyStore.Models.ViewModel;
 using System;
-using UserEntity = _25DH230133_MyStore.Models.User;
-using CustomerEntity = _25DH230133_MyStore.Models.Customer;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 
@@ -14,120 +9,135 @@ namespace _25DH230133_MyStore.Controllers
 {
     public class AccountController : Controller
     {
-        private MyStoreEntities db = new MyStoreEntities();
-        // GET: Account
-        public ActionResult Register()
+        private string CurrentUsername()
         {
-            return View();
+            if (User != null && User.Identity.IsAuthenticated) return User.Identity.Name;
+            return Session["Username"] as string;
         }
-        // POST: Account/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+
+        // GET: Account/Register
+        public ActionResult Register() { return View(new RegisterVM()); }
+
+        [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Register(RegisterVM model)
         {
-            if (ModelState.IsValid)
-            { 
-                //kiểm tra xem tên đăng nhập đã ton tại chưa
-                var existingUser = db.User.SingleOrDefault(u => u.Username == model.Username);
-                if (existingUser != null)
+            if (!ModelState.IsValid) return View(model);
+            using (var db = new MyStoreEntities())
+            {
+                if (db.Users.Any(u => u.Username == model.Username))
                 {
-                    ModelState.AddModelError("Username", "Tên đăng nhập nay đa ton tai!");
+                    ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại.");
                     return View(model);
                 }
-                //nếu chưa ton tại thì tạo bản ghi thông tin tài khoản trong bảng User
-                var user = new UserEntity
+                var user = new User { Username = model.Username.Trim(), Password = model.Password, UserRole = "C" };
+                db.Users.Add(user);
+                db.Customers.Add(new Customer
                 {
-                    Username = model.Username,
-                    Password = model.Password, // Lưu y: Nen ma hoa mat khau truoc khi lưu
-                    UserRole = "Customer"
-                };
-                db.User.Add(user);
-                // và tạo bản ghi thông tin khách hàng trong bang Customer
-                var customer = new CustomerEntity
-                {
+                    Username = user.Username,
                     CustomerName = model.CustomerName,
-                    CustomerEmail = model.CustomerEmail,
                     CustomerPhone = model.CustomerPhone,
-                    CustomerAddress = model.CustomerAddress,
-                    Username = model.Username,
-                };
-                db.Customer.Add(customer);
-                //lưu thong tin tai khoan va thong tin khach hang vao CSDL
-                //db.SaveChanges();
-                try
-                {
-                    db.SaveChanges();
-                }
-                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
-                {
-                    foreach (var entityErrors in ex.EntityValidationErrors)
-                    {
-                        foreach (var error in entityErrors.ValidationErrors)
-                        {
-                            System.Diagnostics.Debug.WriteLine(
-                                "Entity: " + entityErrors.Entry.Entity.GetType().Name
-                            );
-
-                            System.Diagnostics.Debug.WriteLine(
-                                "Property: " + error.PropertyName
-                            );
-
-                            System.Diagnostics.Debug.WriteLine(
-                                "Error: " + error.ErrorMessage
-                            );
-                        }
-                    }
-
-                    throw;
-                }
-                return RedirectToAction("Index", "Home");
+                    CustomerEmail = model.CustomerEmail,
+                    CustomerAddress = model.CustomerAddress
+                });
+                db.SaveChanges();
             }
-            return View(model);
+            TempData["Message"] = "Đăng ký thành công. Vui lòng đăng nhập.";
+            return RedirectToAction("Login");
         }
 
         // GET: Account/Login
-        public ActionResult Login()
-        {
-            return View();
-        }
+        public ActionResult Login(string returnUrl) { return View(new LoginVM { ReturnUrl = returnUrl }); }
 
-        // POST: Account/Login
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public ActionResult Login(LoginVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(model);
+            using (var db = new MyStoreEntities())
             {
-                var user = db.User.SingleOrDefault(u => u.Username == model.Username
-                && u.Password == model.Password
-                && u.UserRole == "Customer");
-                if (user != null)
-                {
-                    // Lưu trạng thai đang nhập vào session
-                    Session["Username"] = user.Username;
-                    Session["UserRole"] = user.UserRole;
-
-                    //lưu thong tin xac thuc nguoi dung vao cookie
-                    FormsAuthentication.SetAuthCookie(user.Username, false);
-
-                    return RedirectToAction("Index", "Home");
-                }
-
-                else
+                var user = db.Users.FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
+                if (user == null)
                 {
                     ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
+                    return View(model);
                 }
-
-
+                Session["Username"] = user.Username;
+                Session["UserRole"] = user.UserRole;
+                FormsAuthentication.SetAuthCookie(user.Username, model.RememberMe);
+                if (user.UserRole != null && user.UserRole.Trim() == "A")
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
             }
-            return View(model);
+            if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl)) return Redirect(model.ReturnUrl);
+            return RedirectToAction("Index", "Home");
         }
 
-        // GET: Account/Logout
         public ActionResult Logout()
         {
-            Session.Clear();
-            return RedirectToAction("Login", "Account");
+            FormsAuthentication.SignOut();
+            Session.Remove("Username");
+            Session.Remove("UserRole");
+            return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Account/Profile
+        public ActionResult Profile()
+        {
+            var username = CurrentUsername();
+            if (string.IsNullOrWhiteSpace(username)) return RedirectToAction("Login");
+            using (var db = new MyStoreEntities())
+            {
+                var customer = db.Customers.FirstOrDefault(c => c.Username == username);
+                if (customer == null) return HttpNotFound();
+                return View("Profile", customer);
+            }
+        }
+
+        public ActionResult ProfileInfo() { return Profile(); }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult UpdateProfile(string CustomerName, string CustomerPhone, string CustomerEmail, string CustomerAddress)
+        {
+            var username = CurrentUsername();
+            if (string.IsNullOrWhiteSpace(username)) return RedirectToAction("Login");
+            if (string.IsNullOrWhiteSpace(CustomerName) || string.IsNullOrWhiteSpace(CustomerPhone))
+            {
+                TempData["Error"] = "Họ tên và số điện thoại không được để trống.";
+                return RedirectToAction("Profile");
+            }
+            using (var db = new MyStoreEntities())
+            {
+                var c = db.Customers.FirstOrDefault(x => x.Username == username);
+                if (c == null) return HttpNotFound();
+                c.CustomerName = CustomerName; c.CustomerPhone = CustomerPhone;
+                c.CustomerEmail = CustomerEmail; c.CustomerAddress = CustomerAddress;
+                db.SaveChanges();
+            }
+            TempData["Message"] = "Đã cập nhật thông tin.";
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(string CurrentPassword, string NewPassword, string ConfirmPassword)
+        {
+            var username = CurrentUsername();
+            if (string.IsNullOrWhiteSpace(username)) return RedirectToAction("Login");
+            if (string.IsNullOrWhiteSpace(NewPassword) || NewPassword.Length < 6 || NewPassword != ConfirmPassword)
+            {
+                TempData["Error"] = "Mật khẩu mới cần ít nhất 6 ký tự và hai ô phải khớp.";
+                return RedirectToAction("Profile");
+            }
+            using (var db = new MyStoreEntities())
+            {
+                var user = db.Users.FirstOrDefault(x => x.Username == username);
+                if (user == null || user.Password.Trim() != CurrentPassword)
+                {
+                    TempData["Error"] = "Mật khẩu hiện tại không đúng.";
+                    return RedirectToAction("Profile");
+                }
+                user.Password = NewPassword;
+                db.SaveChanges();
+            }
+            TempData["Message"] = "Đã đổi mật khẩu.";
+            return RedirectToAction("Profile");
         }
     }
 }
