@@ -69,59 +69,69 @@
         </div>
 
         @* Khối bên phải *@
+
         <div class="col-md-3 pro-section">
             <div class="form-group">
-                @* Phần tạm tính *@
-                @using (Html.BeginForm("ProductDetails", "Home", FormMethod.Get))
+                @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Get))
                 {
-                    <h4><strong>Số lượng</strong></h4>
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.product.ProductID" />
+
+                    <label>Số lượng:</label>
+
+                    <input type="number"
+                           id="quantityInput"
+                           name="quantity"
+                           value="1"
+                           min="1"
+                           max="100"
+                           class="form-control"
+                           style="width:100px;"
+                           data-price="@Model.product.ProductPrice" />
+
+                    <br />
+
                     <p>
-                        <input type="number"
-                               id="quantityInput"
-                               name="quantity"
-                               class="form-control"
-                               value="@Model.quantity"
-                               min="1"
-                               step="1"
-                               data-price="@Model.product.ProductPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
-                </p>
+                        Tạm tính:
+                        <strong id="estimatedValue" class="pro-price">
+                            @Model.product.ProductPrice.ToString("N0") đ
+                        </strong>
+                    </p>
 
-                <h4><strong>Tạm tính</strong></h4>
-                <p>
-                    <strong id="estimatedValue">
-                        @Model.estimatedValue.ToString("N0") đ
-                    </strong>
-                </p>
-
-                <p>
-                    @Html.ActionLink("Thêm vào giỏ hàng", "AddToCart", "Cart",
-                        new { id = Model.product.ProductID, quantity = Model.quantity },
-                        new { @class = "btn btn-info" })
-                </p>
-            }
+                    <button type="submit" class="btn btn-primary">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
                 <hr />
             </div>
 
-            @* Khối TopProduct *@
             <div>@Html.Partial("_PVTopProduct", Model)</div>
         </div>
+
+        @* Khối TopProduct *@
+        <div>@Html.Partial("_PVTopProduct", Model)</div>
+    </div>
     </div>
 </div>
 @*tính tiền tự động phần tạm tính*@ 
 <script>
+
     document.addEventListener("DOMContentLoaded", function () {
         const quantityInput = document.getElementById("quantityInput");
         const estimatedValue = document.getElementById("estimatedValue");
+
+        if (!quantityInput || !estimatedValue) return;
 
         const price = parseFloat(quantityInput.dataset.price);
 
         function calculateTotal() {
             let quantity = parseInt(quantityInput.value) || 1;
 
-            if (quantity < 1) {
-                quantity = 1;
-                quantityInput.value = 1;
-            }
+            if (quantity < 1) quantity = 1;
+            if (quantity > 100) quantity = 100;
+
+            quantityInput.value = quantity;
 
             const total = price * quantity;
 
@@ -130,8 +140,8 @@
         }
 
         quantityInput.addEventListener("input", calculateTotal);
-
         calculateTotal();
     });
+
 </script>
 

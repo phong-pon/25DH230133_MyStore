@@ -1,36 +1,200 @@
-﻿@model PagedList.IPagedList<_25DH230133_MyStore.Models.Order>
+﻿@*@model PagedList.IPagedList<_25DH230133_MyStore.Models.Order>
+    @using PagedList.Mvc
+
+    @{
+        ViewBag.Title = "Đơn hàng";
+        Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+        string searchTerm = Request.QueryString["searchTerm"];
+    }
+
+    @using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "text-center", style = "margin-top:10px;" }))
+    {
+        <input type="text" name="searchTerm" value="@searchTerm" class="form-control" style="display:inline-block;width:380px;" placeholder="Nhập mã đơn hàng hoặc tên khách hàng" />
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    }
+
+    <h2 class="bg-success">DANH SÁCH ĐƠN HÀNG</h2>
+    @if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    <table class="table">
+        <tr class="success"><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th></th></tr>
+        @foreach (var o in Model)
+        {
+            <tr class="info">
+                <td>#@o.OrderID</td>
+                <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
+                <td>@o.Customer.CustomerName</td>
+                <td>@o.TotalAmount.ToString("N0")</td>
+                <td>@o.PaymentMethod</td>
+                <td>@o.PaymentStatus</td>
+                <td>@Html.ActionLink("Chi tiết", "Details", new { id = o.OrderID }, new { @class = "btn btn-primary btn-xs" })</td>
+            </tr>
+        }
+    </table>
+    <div class="pagination-container">
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm }))
+    </div>*@
+
+
+@model PagedList.IPagedList<_25DH230133_MyStore.Models.Order>
 @using PagedList.Mvc
 
 @{
     ViewBag.Title = "Đơn hàng";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-    string searchTerm = Request.QueryString["searchTerm"];
-}
 
-@using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "text-center", style = "margin-top:10px;" }))
-{
-    <input type="text" name="searchTerm" value="@searchTerm" class="form-control" style="display:inline-block;width:380px;" placeholder="Nhập mã đơn hàng hoặc tên khách hàng" />
-    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    string searchTerm = ViewBag.SearchTerm as string;
+    string status = ViewBag.Status as string ?? "all";
+    string fromDate = ViewBag.FromDate as string;
+    string toDate = ViewBag.ToDate as string;
 }
 
 <h2 class="bg-success">DANH SÁCH ĐƠN HÀNG</h2>
-@if (TempData["Message"] != null) { <div class="alert alert-success">@TempData["Message"]</div> }
-@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
-<table class="table">
-    <tr class="success"><th>Mã đơn</th><th>Ngày đặt</th><th>Khách hàng</th><th>Tổng tiền</th><th>Thanh toán</th><th>Trạng thái</th><th></th></tr>
-    @foreach (var o in Model)
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@using (Html.BeginForm("Index", "Orders", FormMethod.Get,
+    new { @class = "form-horizontal", style = "margin:20px 0;" }))
+{
+    <div class="row">
+        <div class="col-md-4">
+            <label>Mã đơn hàng hoặc tên khách hàng</label>
+            <input type="text"
+                   name="searchTerm"
+                   value="@searchTerm"
+                   class="form-control"
+                   placeholder="Nhập mã đơn hoặc tên khách hàng" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Trạng thái thanh toán</label>
+            <select name="status" class="form-control">
+                <option value="all" @(status == "all" ? "selected" : "")>
+                    Tất cả trạng thái
+                </option>
+                <option value="Chưa thanh toán" @(status == "Chưa thanh toán" ? "selected" : "")>
+                    Chưa thanh toán
+                </option>
+                <option value="Đã thanh toán" @(status == "Đã thanh toán" ? "selected" : "")>
+                    Đã thanh toán
+                </option>
+                <option value="Trả góp" @(status == "Trả góp" ? "selected" : "")>
+                    Trả góp
+                </option>
+                <option value="Thanh toán tiền mặt" @(status == "Thanh toán tiền mặt" ? "selected" : "")>
+                    Thanh toán tiền mặt
+                </option>
+                <option value="Thanh toán paypal" @(status == "Thanh toán paypal" ? "selected" : "")>
+                    Thanh toán PayPal
+                </option>
+                <option value="Đang xử lý" @(status == "Đang xử lý" ? "selected" : "")>
+                    Đang xử lý
+                </option>
+                <option value="Đang giao" @(status == "Đang giao" ? "selected" : "")>
+                    Đang giao
+                </option>
+                <option value="Hoàn thành" @(status == "Hoàn thành" ? "selected" : "")>
+                    Đã giao
+                </option>
+                <option value="Đã hủy" @(status == "Đã hủy" ? "selected" : "")>
+                    Đã hủy
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label>Từ ngày</label>
+            <input type="date"
+                   name="fromDate"
+                   value="@fromDate"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-2">
+            <label>Đến ngày</label>
+            <input type="date"
+                   name="toDate"
+                   value="@toDate"
+                   class="form-control" />
+        </div>
+
+        <div class="col-md-1" style="padding-top:25px;">
+            <button type="submit" class="btn btn-primary">
+                Tìm
+            </button>
+        </div>
+    </div>
+
+    <div style="margin-top:10px;">
+        <a href="@Url.Action("Index", "Orders")"
+           class="btn btn-default">
+            Xóa bộ lọc
+        </a>
+    </div>
+}
+
+<table class="table table-bordered table-hover">
+    <tr class="success">
+        <th>Mã đơn</th>
+        <th>Ngày đặt</th>
+        <th>Khách hàng</th>
+        <th>Tổng tiền</th>
+        <th>Thanh toán</th>
+        <th>Trạng thái</th>
+        <th></th>
+    </tr>
+
+    @if (Model != null && Model.Any())
     {
-        <tr class="info">
-            <td>#@o.OrderID</td>
-            <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
-            <td>@o.Customer.CustomerName</td>
-            <td>@o.TotalAmount.ToString("N0")</td>
-            <td>@o.PaymentMethod</td>
-            <td>@o.PaymentStatus</td>
-            <td>@Html.ActionLink("Chi tiết", "Details", new { id = o.OrderID }, new { @class = "btn btn-primary btn-xs" })</td>
+        foreach (var o in Model)
+        {
+            <tr class="info">
+                <td>#@o.OrderID</td>
+                <td>@o.OrderDate.ToString("dd/MM/yyyy")</td>
+                <td>@o.Customer.CustomerName</td>
+                <td>@o.TotalAmount.ToString("N0")</td>
+                <td>@o.PaymentMethod</td>
+                <td>@o.PaymentStatus</td>
+                <td>
+                    @Html.ActionLink(
+                        "Chi tiết",
+                        "Details",
+                        new { id = o.OrderID },
+                        new { @class = "btn btn-primary btn-xs" }
+                    )
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="7" class="text-center">
+                Không tìm thấy đơn hàng phù hợp.
+            </td>
         </tr>
     }
 </table>
+
 <div class="pagination-container">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm }))
+    @Html.PagedListPager(
+        Model,
+        page => Url.Action("Index", new
+        {
+            page,
+            searchTerm,
+            status,
+            fromDate,
+            toDate
+        })
+    )
 </div>
+

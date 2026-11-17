@@ -307,7 +307,6 @@
     <Content Include="Views\Home\_PVRelatedProduct.cshtml" />
     <Content Include="Views\Home\ProductDetails.cshtml" />
     <Content Include="Views\Cart\Index.cshtml" />
-    <Content Include="Views\Cart\_PVSimilarProduct.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
@@ -316,6 +315,7 @@
     <Content Include="Views\Cart\Index2.cshtml" />
     <Content Include="Views\order\Checkout.cshtml" />
     <Content Include="Views\order\OrderSuccess.cshtml" />
+    <Content Include="Views\Cart\_PVSimilarProduct.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -28,27 +28,28 @@
         font-size: smaller;
     }
 </style>
-<script language="JavaScript">
+<script>
     function cartUpdateQuantity(id, newQuantity) {
         if (newQuantity < 1) return;
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = '@Url.Action("UpdateQuantity", "Cart")';
 
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'id';
-        idInput.value = id;
-        form.appendChild(idInput);
+        const formData = new URLSearchParams();
+        formData.append('id', id);
+        formData.append('quantity', newQuantity);
 
-        const quantityInput = document.createElement('input');
-        quantityInput.type = 'hidden';
-        quantityInput.name = 'quantity';
-        quantityInput.value = newQuantity;
-        form.appendChild(quantityInput);
-
-        document.body.appendChild(form);
-        form.submit();
+        fetch('@Url.Action("UpdateQuantity", "Cart")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Tải lại trang giỏ hàng để cập nhật số lượng và tổng tiền
+            }
+        })
+        .catch(error => console.error('Lỗi:', error));
     }
 </script>
 
@@ -83,8 +84,8 @@
                                 @foreach (var item in categoryGroup)
                                 {
                                     <tr>
-                                        <td><img src="@item.ProductImage" alt="@item.ProductName" style="max-height:80px;" /></td>
-                                        <td class="col-md-3">@item.ProductName</td>
+                                        <td><img src="@Url.Content(item.ProductImage)"alt="@item.ProductName"style="width:100%; max-width:150px; height:120px; object-fit:contain;"onerror="this.style.display='none';" />
+</td>                                        <td class="col-md-3">@item.ProductName</td>
                                         <td>
                                             @using (Html.BeginForm("UpdateQuantity", "Cart", FormMethod.Post))
                                             {
